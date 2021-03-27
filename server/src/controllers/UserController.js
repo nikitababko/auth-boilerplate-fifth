@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const User = require('../models/User');
+const UserModel = require('../models/UserModel');
 const sendMail = require('./SendMail');
 
 const validateEmail = require('../utils/validations/register');
@@ -44,7 +44,7 @@ const UserController = {
       //   });
       // }
 
-      User.findOne({ email }).exec(async (err, user) => {
+      UserModel.findOne({ email }).exec(async (err, user) => {
         if (user) {
           return res.status(400).json({
             errorMessage: 'An account with this email already exists.',
@@ -63,7 +63,7 @@ const UserController = {
           const activation_token = createActivationToken(newUser);
           const url = `${CLIENT_URL}/user/activate/${activation_token}`;
 
-          sendMail(email, url);
+          sendMail(email, url, 'Verify your email address');
 
           res.json({
             message: 'Register success! Please activate your email to start.',
@@ -87,13 +87,13 @@ const UserController = {
 
       const { name, email, password } = user;
 
-      User.findOne({ email }).exec(async (err, user) => {
+      UserModel.findOne({ email }).exec(async (err, user) => {
         if (user) {
           return res.status(400).json({
             msg: 'This email already exists.',
           });
         } else {
-          const newUser = new User({
+          const newUser = new UserModel({
             name,
             email,
             password,
@@ -113,7 +113,7 @@ const UserController = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      User.findOne({ email }).exec((err, user) => {
+      UserModel.findOne({ email }).exec((err, user) => {
         if (err || !user) {
           return res.status(400).json({ msg: 'This email does not exist.' });
         } else {
@@ -160,7 +160,7 @@ const UserController = {
   forgotPassword: async (req, res) => {
     try {
       const { email } = req.body;
-      const user = await Users.findOne({ email });
+      const user = await UserModel.findOne({ email });
       if (!user) return res.status(400).json({ msg: 'This email does not exist.' });
 
       const access_token = createAccessToken({ id: user._id });
@@ -168,6 +168,26 @@ const UserController = {
 
       sendMail(email, url, 'Reset your password');
       res.json({ msg: 'Re-send the password, please check your email.' });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Reset password
+  resetPassword: async (req, res) => {
+    try {
+      const { password } = req.body;
+      console.log(password);
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      await UserModel.findOneAndUpdate(
+        { _id: req.user.id },
+        {
+          password: passwordHash,
+        }
+      );
+
+      res.json({ msg: 'Password successfully changed!' });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
