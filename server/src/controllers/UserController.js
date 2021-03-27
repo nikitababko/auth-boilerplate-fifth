@@ -1,15 +1,17 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 const sendMail = require('./SendMail');
 
 const validateEmail = require('../utils/validations/register');
-const { createActivationToken } = require('../utils/token');
+const { createActivationToken, createRefreshToken } = require('../utils/token');
 const generateHashPassword = require('../utils/generateHashPassword');
 
 const { CLIENT_URL } = process.env;
 
 const UserController = {
+  // Register
   register: async (req, res) => {
     try {
       const { name, email, password } = req.body;
@@ -38,43 +40,24 @@ const UserController = {
       //   });
       // }
 
-      await User.findOne({ email }).exec(async (err, user) => {
+      User.findOne({ email }).exec(async (err, user) => {
         if (user) {
           return res.status(400).json({
             errorMessage: 'An account with this email already exists.',
           });
         } else {
           // Hash the password
-          // const salt = await bcrypt.genSalt();
-          // const passwordHash = await bcrypt.hash(password, salt);
-
-          // const newUser = new User({
-          //   name,
-          //   email,
-          //   password,
-          // });
+          const passwordHash = await bcrypt.hash(password, 12);
 
           const newUser = {
             name,
             email,
-            password,
+            password: passwordHash,
           };
 
-          // bcrypt.genSalt(10, (err, salt) => {
-          //   bcrypt.hash(newUser.password, salt, (err, hash) => {
-          //     if (err) throw err;
-          //     newUser.password = hash;
-          //     try {
-          //       newUser.save();
-          //     } catch (error) {
-          //       console.error(error);
-          //     }
-          //   });
-          // });
-
           // Account activation
-          const activationToken = createActivationToken(newUser);
-          const url = `${CLIENT_URL}/user/activate/${activationToken}`;
+          const activation_token = createActivationToken(newUser);
+          const url = `${CLIENT_URL}/user/activate/${activation_token}`;
 
           sendMail(email, url);
 
@@ -87,6 +70,84 @@ const UserController = {
       return res.status(500).json({
         message: error.message,
       });
+    }
+  },
+
+  // Activate account
+  activateEmail: async (req, res) => {
+    try {
+      const { activation_token } = req.body;
+      const user = jwt.verify(activation_token, process.env.ACTIVATION_TOKEN_SECRET);
+
+      console.log(user);
+
+      const { name, email, password } = user;
+
+      User.findOne({ email }).exec(async (err, user) => {
+        if (user) {
+          return res.status(400).json({
+            msg: 'This email already exists.',
+          });
+        } else {
+          const newUser = new User({
+            name,
+            email,
+            password,
+          });
+
+          await newUser.save();
+
+          res.json({ msg: 'Account has been activated!' });
+        }
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Login
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      User.findOne({ email }).exec((err, user) => {
+        if (err || !user) {
+          return res.status(400).json({ msg: 'This email does not exist.' });
+        } else {
+          bcrypt.compare(password, user.password).then((isMatch) => {
+            if (!isMatch) {
+              return res.status(400).json({ msg: 'Password is incorrect.' });
+            } else {
+              const refresh_token = createRefreshToken({ id: user._id });
+              res.cookie('refreshtoken', refresh_token, {
+                httpOnly: true,
+                path: '/user/refresh_token',
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+              });
+
+              res.json({ msg: 'Login success!' });
+            }
+          });
+        }
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Get access token
+  getAccessToken: (req, res) => {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      if (!rf_token) return res.status(400).json({ msg: 'Please login now!' });
+
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: 'Please login now!' });
+
+        const access_token = createAccessToken({ id: user.id });
+        res.json({ access_token });
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
     }
   },
 };
