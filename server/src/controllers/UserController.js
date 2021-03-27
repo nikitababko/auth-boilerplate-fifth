@@ -5,7 +5,11 @@ const User = require('../models/User');
 const sendMail = require('./SendMail');
 
 const validateEmail = require('../utils/validations/register');
-const { createActivationToken, createRefreshToken } = require('../utils/token');
+const {
+  createActivationToken,
+  createRefreshToken,
+  createAccessToken,
+} = require('../utils/token');
 const generateHashPassword = require('../utils/generateHashPassword');
 
 const { CLIENT_URL } = process.env;
@@ -138,6 +142,7 @@ const UserController = {
   getAccessToken: (req, res) => {
     try {
       const rf_token = req.cookies.refreshtoken;
+      console.log(rf_token);
       if (!rf_token) return res.status(400).json({ msg: 'Please login now!' });
 
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
@@ -146,6 +151,23 @@ const UserController = {
         const access_token = createAccessToken({ id: user.id });
         res.json({ access_token });
       });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Forgot password
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      const user = await Users.findOne({ email });
+      if (!user) return res.status(400).json({ msg: 'This email does not exist.' });
+
+      const access_token = createAccessToken({ id: user._id });
+      const url = `${CLIENT_URL}/user/reset/${access_token}`;
+
+      sendMail(email, url, 'Reset your password');
+      res.json({ msg: 'Re-send the password, please check your email.' });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
