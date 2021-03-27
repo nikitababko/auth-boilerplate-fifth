@@ -180,6 +180,8 @@ const UserController = {
       console.log(password);
       const passwordHash = await bcrypt.hash(password, 12);
 
+      console.log(req.user);
+
       await UserModel.findOneAndUpdate(
         { _id: req.user.id },
         {
@@ -188,6 +190,17 @@ const UserController = {
       );
 
       res.json({ msg: 'Password successfully changed!' });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Get user info
+  getUserInfo: async (req, res) => {
+    try {
+      const user = await UserModel.findById(req.user.id).select('-password');
+
+      res.json(user);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
