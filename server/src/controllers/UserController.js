@@ -246,11 +246,11 @@ const UserController = {
   },
 
   // Update user role
-  updateUsersRole: async (req, res) => {
+  updateUserRole: async (req, res) => {
     try {
       const { role } = req.body;
 
-      await Users.findOneAndUpdate(
+      await UserModel.findOneAndUpdate(
         { _id: req.params.id },
         {
           role,
@@ -258,6 +258,17 @@ const UserController = {
       );
 
       res.json({ msg: 'Update Success!' });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  // Delete user
+  deleteUser: async (req, res) => {
+    try {
+      await Users.findByIdAndDelete(req.params.id);
+
+      res.json({ msg: 'Deleted Success!' });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
