@@ -205,6 +205,17 @@ const UserController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+
+  // Get all user info with Admin
+  getUsersAllInfo: async (req, res) => {
+    try {
+      const user = await UserModel.find().select('-password');
+
+      res.json(user);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 module.exports = UserController;
