@@ -266,9 +266,13 @@ const UserController = {
   // Delete user
   deleteUser: async (req, res) => {
     try {
-      await Users.findByIdAndDelete(req.params.id);
+      const user = await UserModel.findByIdAndDelete(req.params.id);
 
-      res.json({ msg: 'Deleted Success!' });
+      if (!user) {
+        res.status(500).json({ msg: 'User not found!' });
+      } else {
+        res.json({ msg: 'Deleted Success!' });
+      }
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
