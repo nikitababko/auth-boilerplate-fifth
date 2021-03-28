@@ -16,6 +16,7 @@ const createRoutes = (app) => {
   app.get('/user/all_info', auth, authAdmin, UserController.getUsersAllInfo);
 
   app.patch('/user/update', auth, UserController.updateUser);
+  app.patch('/user/update_role', auth, authAdmin, UserController.updateUsersRole);
 };
 
 module.exports = createRoutes;
