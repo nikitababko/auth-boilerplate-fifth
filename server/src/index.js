@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const fileUpload = require('express-fileupload');
+const morgan = require('morgan');
 
 const connectDB = require('./core/db');
 const createRoutes = require('./core/routes');
@@ -16,6 +17,7 @@ const app = express();
 // Setup app
 app.use(express.json());
 app.use(cors());
+app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
   fileUpload({
