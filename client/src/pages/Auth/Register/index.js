@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { showErrMsg, showSuccessMsg } from 'utils/notification/Notification';
-import { isEmpty, isEmail, isLength, isMatch } from 'utils/validation/Validation';
+import { showErrMsg, showSuccessMsg } from 'utils/notifications';
+import { isEmpty, isEmail, isLength, isMatch } from 'utils/validations';
 
 const initialState = {
   name: '',
@@ -13,7 +13,7 @@ const initialState = {
   success: '',
 };
 
-function Register() {
+const Register = () => {
   const [user, setUser] = useState(initialState);
 
   const { name, email, password, cf_password, err, success } = user;
@@ -25,10 +25,12 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEmpty(name) || isEmpty(password))
+    if (isEmpty(name) || isEmpty(password)) {
       return setUser({ ...user, err: 'Please fill in all fields.', success: '' });
-
-    if (!isEmail(email)) return setUser({ ...user, err: 'Invalid emails.', success: '' });
+    }
+    if (!isEmail(email)) {
+      return setUser({ ...user, err: 'Invalid emails.', success: '' });
+    }
 
     if (isLength(password))
       return setUser({
@@ -37,8 +39,9 @@ function Register() {
         success: '',
       });
 
-    if (!isMatch(password, cf_password))
+    if (!isMatch(password, cf_password)) {
       return setUser({ ...user, err: 'Password did not match.', success: '' });
+    }
 
     try {
       const res = await axios.post('/user/register', {
@@ -55,7 +58,7 @@ function Register() {
   };
 
   return (
-    <div className="login_page">
+    <div className="login-page">
       <h2>Register</h2>
       {err && showErrMsg(err)}
       {success && showSuccessMsg(success)}
@@ -119,6 +122,6 @@ function Register() {
       </p>
     </div>
   );
-}
+};
 
 export default Register;
