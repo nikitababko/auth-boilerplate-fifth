@@ -3,7 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { Login, Register } from 'pages/Auth';
-import { ActivationEmail, NotFound } from 'components';
+import { ActivationEmail, ForgotPassword, NotFound } from 'components';
 
 const Body = () => {
   const auth = useSelector((state) => state.auth);
@@ -14,6 +14,11 @@ const Body = () => {
       <Switch>
         <Route exact path="/login" component={isLogged ? NotFound : Login} />
         <Route exact path="/register" component={isLogged ? NotFound : Register} />
+        <Route
+          exact
+          path="/forgot_password"
+          component={isLogged ? NotFound : ForgotPassword}
+        />
         <Route
           exact
           path="/user/activate/:activation_token"
