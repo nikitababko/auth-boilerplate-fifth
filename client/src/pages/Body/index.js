@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { Login, Register } from 'pages/Auth';
 import { ActivationEmail, ForgotPassword, NotFound, ResetPassword } from 'components';
+import { EditProfile } from 'pages/Profile';
 
 const Body = () => {
   const auth = useSelector((state) => state.auth);
@@ -19,6 +20,7 @@ const Body = () => {
           path="/user/activate/:activation_token"
           component={ActivationEmail}
         />
+        <Route exact path="/profile" component={EditProfile} />
 
         <Route
           exact
