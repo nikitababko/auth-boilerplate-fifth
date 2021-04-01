@@ -1,0 +1,29 @@
+.edit-user {
+  .go-back {
+    background: white;
+    margin: 20px;
+    font-size: 1.2rem;
+  }
+}
+.edit-user {
+  .col-left {
+    margin-top: 50px;
+
+    input {
+      background: #eee;
+    }
+
+    #isAdmin {
+      width: 20px;
+      height: 20px;
+      transform: translateY(3px);
+      margin: 10px 0;
+      + {
+        label {
+          display: inline-block;
+          margin-left: 5px;
+        }
+      }
+    }
+  }
+}
