@@ -56,9 +56,9 @@ const sendEmail = (to, url, txt) => {
     `,
   };
 
-  smtpTransport.sendMail(mailOptions, (err, infor) => {
+  smtpTransport.sendMail(mailOptions, (err, info) => {
     if (err) return err;
-    return infor;
+    return info;
   });
 };
 
