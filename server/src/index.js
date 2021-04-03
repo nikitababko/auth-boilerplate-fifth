@@ -15,9 +15,16 @@ const createRoutes = require('./core/routes');
 const app = express();
 
 // Setup app
+if (process.env.NODE_ENV === 'development') {
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+    })
+  );
+
+  app.use(morgan('dev'));
+}
 app.use(express.json());
-app.use(cors());
-app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(
   fileUpload({
