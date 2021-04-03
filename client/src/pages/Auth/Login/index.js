@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
+import { GoogleLogin } from 'react-google-login';
+import reactEnv from 'react-dotenv';
 
 import { showErrMsg, showSuccessMsg } from 'utils/notifications';
 import { dispatchLogin } from 'redux/actions/authAction';
@@ -33,6 +35,22 @@ const Login = () => {
       const res = await axios.post('/user/login', { email, password });
       setUser({ ...user, err: '', success: res.data.msg });
 
+      localStorage.setItem('firstLogin', true);
+
+      dispatch(dispatchLogin());
+      history.push('/');
+    } catch (err) {
+      err.response.data.msg &&
+        setUser({ ...user, err: err.response.data.msg, success: '' });
+    }
+  };
+
+  const responseGoogle = async (response) => {
+    try {
+      console.log(response);
+      const res = await axios.post('/user/google_login', { tokenId: response.tokenId });
+
+      setUser({ ...user, error: '', success: res.data.msg });
       localStorage.setItem('firstLogin', true);
 
       dispatch(dispatchLogin());
@@ -80,6 +98,18 @@ const Login = () => {
           <Link to="/forgot_password">Forgot your password?</Link>
         </div>
       </form>
+
+      <div className="hr">Or Login With</div>
+      <div className="social">
+        <GoogleLogin
+          // Use with react-dotenv
+          clientId={reactEnv.MAILING_SERVICE_CLIENT_ID}
+          buttonText="Login with google"
+          onSuccess={responseGoogle}
+          onFailure={responseGoogle}
+          cookiePolicy={'single_host_origin'}
+        />
+      </div>
 
       <p>
         New User? <Link to="/register">Register</Link>
