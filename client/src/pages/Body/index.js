@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Login, Register } from 'pages/Auth';
 import { ActivationEmail, ForgotPassword, NotFound, ResetPassword } from 'components';
 import { EditProfile, EditUser } from 'pages/Profile';
+import Home from 'pages/Home';
 
 const Body = () => {
   const auth = useSelector((state) => state.auth);
@@ -16,6 +17,9 @@ const Body = () => {
         {/* 
           // TODO Create conditional for redirect to /home...
         */}
+
+        <Route exact path="/" component={Home} />
+
         <Route exact path="/login" component={isLogged ? NotFound : Login} />
         <Route exact path="/register" component={isLogged ? NotFound : Register} />
         <Route
