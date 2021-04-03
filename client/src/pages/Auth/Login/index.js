@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { GoogleLogin } from 'react-google-login';
-import reactEnv from 'react-dotenv';
+import FacebookLogin from 'react-facebook-login';
 
 import { showErrMsg, showSuccessMsg } from 'utils/notifications';
 import { dispatchLogin } from 'redux/actions/authAction';
@@ -61,6 +61,22 @@ const Login = () => {
     }
   };
 
+  const responseFacebook = async (response) => {
+    try {
+      const { accessToken, userID } = response;
+      const res = await axios.post('/user/facebook_login', { accessToken, userID });
+
+      setUser({ ...user, error: '', success: res.data.msg });
+      localStorage.setItem('firstLogin', true);
+
+      dispatch(dispatchLogin());
+      history.push('/');
+    } catch (err) {
+      err.response.data.msg &&
+        setUser({ ...user, err: err.response.data.msg, success: '' });
+    }
+  };
+
   return (
     <div className="login-page">
       <h2>Login</h2>
@@ -100,14 +116,21 @@ const Login = () => {
       </form>
 
       <div className="hr">Or Login With</div>
+
       <div className="social">
         <GoogleLogin
-          // Use with react-dotenv
-          clientId={reactEnv.MAILING_SERVICE_CLIENT_ID}
+          clientId={`${process.env.REACT_APP_GOOGLE_CLIENT}`}
           buttonText="Login with google"
           onSuccess={responseGoogle}
           onFailure={responseGoogle}
           cookiePolicy={'single_host_origin'}
+        />
+
+        <FacebookLogin
+          appId={process.env.REACT_APP_FACEBOOK_CLIENT}
+          autoLoad={false}
+          fields="name,email,picture"
+          callback={responseFacebook}
         />
       </div>
 
