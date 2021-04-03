@@ -11,6 +11,9 @@ const createRoutes = (app) => {
   app.get('/user/logout', UserController.logout);
   app.post('/user/refresh_token', UserController.getAccessToken);
 
+  app.post('/user/google_login', UserController.googleLogin);
+  app.post('/user/facebook_login', UserController.facebookLogin);
+
   app.post('/user/forgot', UserController.forgotPassword);
   app.post('/user/reset', auth, UserController.resetPassword);
 
