@@ -47,17 +47,19 @@ const Header = () => {
 
   return (
     <header>
-      <div className="logo">
-        <h1>
-          <Link to="/">Auth</Link>
-        </h1>
-      </div>
+      <div className="container">
+        <div className="logo">
+          <h1>
+            <Link to="/">Auth</Link>
+          </h1>
+        </div>
 
-      <ul style={transForm}>
-        <li>
-          <Link to="/">
-            <i className="fas fa-shopping-cart"></i> Cart
-          </Link>
+        <ul style={transForm}>
+          <li>
+            <Link to="/">
+              <i className="fas fa-home"></i> Home
+            </Link>
+          </li>
 
           {isLogged ? (
             userLink()
@@ -68,8 +70,8 @@ const Header = () => {
               </Link>
             </li>
           )}
-        </li>
-      </ul>
+        </ul>
+      </div>
     </header>
   );
 };
