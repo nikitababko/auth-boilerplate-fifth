@@ -71,6 +71,22 @@
 
 6. Run command `npm run start` or `yarn start` on client and command `npm run dev` or `yarn dev` on server.
 
+## Possible problems
+
+```js
+  ./src/index.js 1:85
+  Module parse failed: Unexpected token (1:85)
+  File was processed with these loaders:
+  * ./node_modules/@pmmmwh/react-refresh-webpack-plugin/loader/index.js
+  * ./node_modules/react-scripts/node_modules/babel-loader/lib/index.js
+  You may need an additional loader to handle the result of these loaders.
+  > $RefreshRuntime$ = require('E:/Admin/Use/Dev/programming/projects/dasha-diplom/Dasha's diplom/client/node_modules/react-refresh/runtime.js');
+  | $RefreshSetup$(module.id);
+  |
+```
+
+**Decision** - switch from react-scripts@4.0.x to 4.0.1
+
 ## Built With
 
 ### Frontend
@@ -121,3 +137,5 @@
   <h3 style="margin-top: 50px; font-size: 35px">Forgot password</h3>
   <img src="screenshots/forgot-password.JPG" />
 </div>
+
+## Problems
