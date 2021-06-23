@@ -1,6 +1,6 @@
 # Finally, I have perfected the user authentication page using the MERN Stack + Redux.
 
-[You can see screenshots of the messenger below](#screenshots)
+[You can see screenshots of the project below](#screenshots)
 
 ## Include:
 
